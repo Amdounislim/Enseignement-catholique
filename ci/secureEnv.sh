@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "REACT_APP_STRAPI_API=$REACT_APP_STRAPI_API" > .env
+echo "REACT_APP_MAP_GL_TOKEN=$REACT_APP_MAP_GL_TOKEN" >>.env
+

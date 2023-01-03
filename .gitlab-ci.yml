@@ -1,0 +1,55 @@
+stages:
+  - Commit message compilance
+  - Build
+  - deploy
+
+commit messages compliance:
+  stage: Commit message compilance
+  script:
+    - ./ci/commit-lint.sh
+
+Build:
+  image: node:16-alpine
+  stage: Build
+  before_script:
+    - npm ci
+    - echo "REACT_APP_STRAPI_API=$REACT_APP_STRAPI_API" > .env
+    - echo "REACT_APP_MAP_GL_TOKEN=$REACT_APP_MAP_GL_TOKEN" >>.env
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - build
+
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  script:
+    - aws --version
+    - aws s3 rm s3://$S3_BUCKET --recursive
+    - aws s3 cp build s3://$S3_BUCKET --recursive
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+
+  only:
+    - main
+
+deploy_production:
+  stage: deploy
+  environment:
+    name: production
+  image:
+    name: amazon/aws-cli
+    entrypoint: [""]
+  script:
+    - aws --version
+    - aws s3 rm s3://$S3_BUCKET --recursive
+    - aws s3 cp build s3://$S3_BUCKET --recursive
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
+
+  only:
+    - main
+  when: manual

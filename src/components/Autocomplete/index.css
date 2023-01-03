@@ -1,0 +1,9 @@
+.list-items {
+    display: block;
+    text-align: left;
+}
+
+.AutoComplete {
+    width: 100%;
+    margin: 10px 0px;
+}
